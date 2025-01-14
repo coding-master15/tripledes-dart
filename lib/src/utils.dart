@@ -156,36 +156,32 @@ String wordsToUtf8(List<int> words) {
 List<int> parseBase64(String base64Str) {
   const map =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-  List reverseMap;
+  List<int?>? reverseMap;
   // Shortcuts
   var base64StrLength = base64Str.length;
 
-  if (reverseMap == null) {
-    reverseMap = new List<int>(123);
-    for (var j = 0; j < map.length; j++) {
-      reverseMap[map.codeUnits[j]] = j;
-    }
+  reverseMap = new List<int?>.filled(123, null);
+  for (var j = 0; j < map.length; j++) {
+    reverseMap[map.codeUnits[j]] = j;
   }
 
   // Ignore padding
   var paddingChar = map.codeUnits[64];
-  if (paddingChar != null) {
-    var paddingIndex = base64Str.codeUnits.indexOf(paddingChar);
-    if (paddingIndex != -1) {
-      base64StrLength = paddingIndex;
-    }
+  var paddingIndex = base64Str.codeUnits.indexOf(paddingChar);
+  if (paddingIndex != -1) {
+    base64StrLength = paddingIndex;
   }
 
   List<int> parseLoop(
-      String base64Str, int base64StrLength, List<int> reverseMap) {
+      String base64Str, int base64StrLength, List<int?>? reverseMap) {
     var words = [];
     var nBytes = 0;
     for (var i = 0; i < base64StrLength; i++) {
       if (i % 4 != 0) {
-        var bits1 = reverseMap[base64Str.codeUnits[i - 1]] <<
+        var bits1 = reverseMap![base64Str.codeUnits[i - 1]]! <<
             ((i % 4) * 2).toSigned(32);
         var bits2 =
-            rightShift32(reverseMap[base64Str.codeUnits[i]], (6 - (i % 4) * 2))
+            rightShift32(reverseMap[base64Str.codeUnits[i]]!, (6 - (i % 4) * 2))
                 .toSigned(32);
         var idx = rightShift32(nBytes, 2);
         if (words.length <= idx) {
